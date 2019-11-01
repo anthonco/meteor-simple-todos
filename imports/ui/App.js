@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
+// eslint-disable-next-line import/no-unresolved
 import { withTracker } from 'meteor/react-meteor-data';
-import ReactDOM from 'react-dom';
 import { Tasks } from '../api/tasks';
 
 import Task from './Task';
@@ -19,8 +19,7 @@ class App extends Component {
   handleSubmit(event) {
     event.preventDefault();
 
-    // Find the text field via the React ref
-    const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
+    const text = this.newTaskField.value.trim();
 
     Tasks.insert({
       text,
@@ -28,19 +27,21 @@ class App extends Component {
     });
 
     // Clear form
-    ReactDOM.findDOMNode(this.refs.textInput).value = '';
+    this.newTaskField.value = '';
   }
 
   toggleHideCompleted() {
+    const { hideCompleted } = this.state;
     this.setState({
-      hideCompleted: !this.state.hideCompleted,
+      hideCompleted: !hideCompleted,
     });
   }
 
   renderTasks() {
+    const { hideCompleted } = this.state;
     let filteredTasks = this.props.tasks;
-    if (this.state.hideCompleted) {
-      filteredTasks = filteredTasks.filter(task => !task.checked);
+    if (hideCompleted) {
+      filteredTasks = filteredTasks.filter((task) => !task.checked);
     }
     return filteredTasks.map((task) => (
       <Task key={task._id} task={task} />
@@ -65,10 +66,14 @@ class App extends Component {
 
           <AccountsUIWrapper />
  
-          <form className="new-task" onSubmit={this.handleSubmit.bind(this)} >
+          <form className="new-task" onSubmit={this.handleSubmit.bind(this)}>
             <input
               type="text"
-              ref="textInput"
+              ref={(eltest) => {
+                this.newTaskField = eltest;
+                return this.newTaskField;
+              }}
+              className="textImput"
               placeholder="Type to add new tasks"
             />
           </form>
@@ -81,9 +86,7 @@ class App extends Component {
   }
 }
 
-export default withTracker(() => {
-  return {
-    tasks: Tasks.find({}, { sort: { createdAt: -1 } }).fetch(),
-    incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
-  };
-})(App);
+export default withTracker(() => ({
+  tasks: Tasks.find({}, { sort: { createdAt: -1 } }).fetch(),
+  incompleteCount: Tasks.find({ checked: { $ne: true } }).count(),
+}))(App);
