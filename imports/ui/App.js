@@ -11,6 +11,12 @@ import AccountsUIWrapper from './AccountsUIWrapper';
 
 // App component - represents the whole app
 class App extends Component {
+  static propTypes = {
+    tasks: PropTypes.array,
+    incompleteCount: PropTypes.number,
+    currentUser: PropTypes.object,
+  }
+
   constructor(props) {
     super(props);
 
@@ -65,8 +71,9 @@ class App extends Component {
           )
           </h1>
 
-          <label className="hide-completed">
+          <label className="hide-completed" htmlFor="completed">
             <input
+              name="completed"
               type="checkbox"
               readOnly
               checked={hideCompleted}
